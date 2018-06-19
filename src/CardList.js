@@ -9,23 +9,19 @@ export class CardList extends React.Component {
 
 		itemProps: PropTypes.shape({
 			...CardItem.propTypes,
-			title: PropTypes.string, // Make title optional
-			picture: PropTypes.any,  // Make picture optional
+			renderContent: null,
+			item: null,
 		}),
 
-		cards: PropTypes.arrayOf(PropTypes.shape({
-			id: PropTypes.string,
-			title: PropTypes.string,
-			picture: PropTypes.any,
-			content: PropTypes.element
-		})),
+		cards: PropTypes.arrayOf(CardItem.propTypes.item),
 
 		selected: PropTypes.string,
 
 		listStyle: PropTypes.any,
 
-		duration: PropTypes.number
+		duration: PropTypes.number,
 
+		renderContent: PropTypes.func.isRequired,
 	};
 
 	static defaultProps = {
@@ -41,7 +37,8 @@ export class CardList extends React.Component {
 			selected: new Map(),
 			zoomedStyle: {},
 			maxHeight: 400,
-			zoomAnim: new Animated.Value(1)
+			zoomAnim: new Animated.Value(1),
+			scrollEnabled: true
 		}
 	}
 
@@ -64,16 +61,17 @@ export class CardList extends React.Component {
 
 			this._flatList.scrollToIndex({animated: true, index});
 
-			let windowWidth = Dimensions.get('window').width;
-			let windowHeight = Dimensions.get('window').height;
+			let listWidth = this._layouts.get("FlatList").width;
+			let listHeight = this._layouts.get("FlatList").height;
 
 			let viewWidth = this._layouts.get(item.id).width;
 			let viewHeight = this._layouts.get(item.id).height;
 
-			let scale = windowWidth / viewWidth;
+			let scale = listWidth / viewWidth;
 
-			//let maxHeight = windowHeight / scale;
-			let maxHeight = 1000;
+			let maxHeight = listHeight / scale;
+			// let maxHeight = 1000;
+			// let maxHeight = this._layouts.get("FlatList").heigt - viewHeight;
 			Animated.timing(this.state.zoomAnim, {
 				toValue: scale,
 				duration: this.props.duration
@@ -85,7 +83,8 @@ export class CardList extends React.Component {
 				zoomedStyle: {
 					transform: [{scale: this.state.zoomAnim}, {translateY: viewWidth * 0.5 * (scale - 1)}]
 				},
-				maxHeight: maxHeight
+				maxHeight: maxHeight,
+				scrollEnabled: false,
 			});
 
 		});
@@ -106,13 +105,14 @@ export class CardList extends React.Component {
 				zoomedStyle: {
 					transform: [{scale: this.state.zoomAnim}, {translateY: 0}]
 				},
+				scrollEnabled: true
 			});
 
 		});
 	};
 
 	_renderItem = ({item, index}) => {
-		let {defaultTitle, defaultPicture, defaultContent} = this.props.itemProps;
+		let {defaultTitle, defaultPicture} = this.props.itemProps;
 		return <CardItem
 			onLayout={e => this._layouts.set(item.id, e.nativeEvent.layout)}
 			onPress={() => this._onPressItem({item, index})}
@@ -122,9 +122,8 @@ export class CardList extends React.Component {
 			heightDuration={this.props.duration}
 			textStyle={this.props.textStyle}
 			{...this.props.itemProps}
-			title={item.title || defaultTitle}
-			picture={item.picture || defaultPicture}
-			content={item.content || defaultContent}
+			renderContent={this.props.renderContent}
+			item={item}
 		/>
 	};
 
@@ -132,13 +131,14 @@ export class CardList extends React.Component {
 		return (
 			<Animated.View style={[{flex: 1}, this.state.zoomedStyle]}>
 				<FlatList
+					onLayout={e => this._layouts.set("FlatList", e.nativeEvent.layout)}
 					ref={c => this._flatList = c}
 					style={[{
 						flex: 1,
 						backgroundColor: 'white'
 					}, this.props.listStyle]}
 					data={this.props.cards}
-					scrollEnabled={true}
+					scrollEnabled={this.state.scrollEnabled}
 					keyExtractor={this._keyExtractor}
 					renderItem={this._renderItem}
 				/>

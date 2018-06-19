@@ -13,8 +13,6 @@ import PropTypes from 'prop-types';
 export class CardItem extends React.Component {
 
 	static propTypes = {
-		title: PropTypes.string.isRequired,
-		picture: PropTypes.any.isRequired,
 		selected: PropTypes.bool,
 		height: PropTypes.number,
 		maxHeight: PropTypes.number,
@@ -34,13 +32,18 @@ export class CardItem extends React.Component {
 
 		closeIcon: PropTypes.element,
 
-		content: PropTypes.element,
+		renderContent: PropTypes.func.isRequired,
 
-		defaultTitle: PropTypes.string,
-		defaultPicture: PropTypes.any,
-		defaultContent: PropTypes.element,
+		// defaultTitle: PropTypes.string,
+		// defaultPicture: PropTypes.any,
+		item: PropTypes.shape({
+			title: PropTypes.string.isRequired,
+			picture: PropTypes.any.isRequired,
+		}),
 	};
-
+	static defaultProps = {
+		renderContent: (()=>null)
+	};
 	constructor(props) {
 		super(props);
 
@@ -95,6 +98,7 @@ export class CardItem extends React.Component {
 	}
 
 	render() {
+		let {title, picture} = this.props.item;
 		return (
 			<TouchableOpacity
 				activeOpacity={this.props.activeOpacity || 0.8}
@@ -117,14 +121,14 @@ export class CardItem extends React.Component {
 					<ImageBackground
 						onLayout={this.props.onLayout}
 						borderRadius={this.props.selected ? 0 : (this.props.borderRadius || 10)}
-						source={this.props.picture}
+						source={picture}
 						style={[
 							styles.image,
 							{height: this.props.height || 200}
 						]}
 					>
 						<Text style={[styles.text, this.props.textStyle]}>
-							{this.props.title}
+							{title}
 						</Text>
 						{
 							this.props.selected ?
@@ -150,7 +154,7 @@ export class CardItem extends React.Component {
 					{
 						this.props.selected ?
 							<View style={{flex: 1, padding: 20}}>
-								{this.props.content|| <Text>Some sample content</Text>}
+								{this.props.renderContent(this.props.item)}
 							</View> : null
 					}
 				</Animated.View>

@@ -1,6 +1,6 @@
 {
   "name": "react-native-card-list-reforged",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A list component with zoomable cards",
   "main": "index.js",
   "author": "Alibek Manabayev <alibek.manabayev@gmail.com>",
