@@ -1,7 +1,7 @@
 import {CardList} from './src/CardList';
-import {ItemCard} from './src/ItemCard';
+import {CardItem} from './src/CardItem';
 
 module.exports = {
 	CardList,
-	ItemCard
-}
+	CardItem
+};

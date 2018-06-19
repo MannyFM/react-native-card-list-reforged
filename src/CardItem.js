@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 
-export class ItemCard extends React.Component {
+export class CardItem extends React.Component {
 
 	static propTypes = {
 		title: PropTypes.string.isRequired,
@@ -34,7 +34,11 @@ export class ItemCard extends React.Component {
 
 		closeIcon: PropTypes.element,
 
-		content: PropTypes.element
+		content: PropTypes.element,
+
+		defaultTitle: PropTypes.string,
+		defaultPicture: PropTypes.any,
+		defaultContent: PropTypes.element,
 	};
 
 	constructor(props) {
@@ -146,7 +150,7 @@ export class ItemCard extends React.Component {
 					{
 						this.props.selected ?
 							<View style={{flex: 1, padding: 20}}>
-								{this.props.content || <Text>Some sample content</Text>}
+								{this.props.content|| <Text>Some sample content</Text>}
 							</View> : null
 					}
 				</Animated.View>

@@ -1,13 +1,17 @@
 import React from 'react';
 import {Animated, Dimensions, FlatList} from 'react-native';
 import PropTypes from 'prop-types';
-import {ItemCard} from './ItemCard';
+import {CardItem} from './CardItem';
 
 export class CardList extends React.Component {
 
 	static propTypes = {
 
-		itemProps: PropTypes.shape(ItemCard.propTypes),
+		itemProps: PropTypes.shape({
+			...CardItem.propTypes,
+			title: PropTypes.string, // Make title optional
+			picture: PropTypes.any,  // Make picture optional
+		}),
 
 		cards: PropTypes.arrayOf(PropTypes.shape({
 			id: PropTypes.string,
@@ -55,7 +59,7 @@ export class CardList extends React.Component {
 				return state;
 			}
 
-			selected = new Map();
+			let selected = new Map();
 			selected.set(item.id, true);
 
 			this._flatList.scrollToIndex({animated: true, index});
@@ -107,19 +111,22 @@ export class CardList extends React.Component {
 		});
 	};
 
-	_renderItem = ({item, index}) =>
-		<ItemCard
+	_renderItem = ({item, index}) => {
+		let {defaultTitle, defaultPicture, defaultContent} = this.props.itemProps;
+		return <CardItem
 			onLayout={e => this._layouts.set(item.id, e.nativeEvent.layout)}
-			title={item.title}
-			picture={item.picture}
-			content={item.content}
 			onPress={() => this._onPressItem({item, index})}
 			onClose={() => this._onCloseItem({item, index})}
 			maxHeight={this.state.maxHeight}
 			selected={this.state.selected.get(item.id)}
 			heightDuration={this.props.duration}
 			textStyle={this.props.textStyle}
-		/>;
+			{...this.props.itemProps}
+			title={item.title || defaultTitle}
+			picture={item.picture || defaultPicture}
+			content={item.content || defaultContent}
+		/>
+	};
 
 	render() {
 		return (
